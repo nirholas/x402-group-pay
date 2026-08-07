@@ -12,7 +12,8 @@
       "name": "nirholas",
       "email": "nichxbt@gmail.com",
       "url": "https://github.com/nirholas/x402-group-pay"
-    }
+    },
+    "x-guidance": "Split one booking across N wallets — the 6-person dinner problem: pooled x402 contributions with signed receipts and funded proofs. Every paid route answers an unpaid request with HTTP 402 and a list of accepted payments (USDC on Base or Solana — pick either), then returns the purchased artifact in the body of the same request once you retry with an X-PAYMENT header. Payment and delivery happen in one round trip; nothing is promised for later. POST /pools ($0.001) returns pool record + join links POST /pools/:id/pay (member share) returns signed contribution receipt GET /pools/:id/proof (free) returns funded proof once complete"
   },
   "servers": [
     {
@@ -423,7 +424,19 @@
             },
             "description": "Base64-encoded x402 payment payload. Its `network` selects the rail (base-sepolia/base or solana/solana-devnet). Omit it to receive the 402 challenge."
           }
-        ]
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.001000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        }
       }
     },
     "/pools/{id}/pay": {
@@ -529,6 +542,18 @@
               }
             }
           }
+        },
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         }
       }
     },
