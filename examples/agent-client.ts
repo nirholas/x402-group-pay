@@ -12,7 +12,7 @@
  *   3. fetch the signed funded proof (free)
  *
  * Usage:
- *   PRIVATE_KEY=0x... BASE_URL=http://localhost:4021 npm run client
+ *   PRIVATE_KEY=0x... BASE_URL=http://localhost:4041 npm run client
  *
  * PRIVATE_KEY must hold Base Sepolia USDC (faucet: https://faucet.circle.com).
  */
@@ -22,7 +22,7 @@ import { wrapFetchWithPayment, decodeXPaymentResponse } from "x402-fetch";
 
 config();
 
-const BASE_URL = process.env.BASE_URL ?? "http://localhost:4021";
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:4041";
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 if (!PRIVATE_KEY) {
@@ -119,7 +119,7 @@ main().catch((err) => {
  *
  * And the raw dual-rail 402 body, for reference:
  *
- *   curl -s -X POST http://localhost:4021/pools \
+ *   curl -s -X POST http://localhost:4041/pools \
  *     -H 'content-type: application/json' \
  *     -d '{"purpose":"Dinner for 6","totalUsd":0.06}' | jq '.accepts[] | {network, payTo, maxAmountRequired}'
  *

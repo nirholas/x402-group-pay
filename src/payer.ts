@@ -18,6 +18,7 @@ export function paymentFacts(req: Request, res: Response): PaymentFacts {
       rail: (receipt.rail as PaymentFacts["rail"]) ?? "unknown",
       network: typeof receipt.network === "string" ? receipt.network : "unknown",
       settlementTx: typeof receipt.transaction === "string" ? receipt.transaction : null,
+      facilitator: typeof receipt.facilitator === "string" ? receipt.facilitator : null,
     };
   }
   return {
@@ -25,6 +26,7 @@ export function paymentFacts(req: Request, res: Response): PaymentFacts {
     rail: decodeRail(req),
     network: decodeNetwork(req),
     settlementTx: null,
+    facilitator: null,
   };
 }
 

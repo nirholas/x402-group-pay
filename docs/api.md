@@ -1,6 +1,6 @@
 # API reference
 
-Base URL: your deployment (default `http://localhost:4021`). Machine-readable: [`openapi.json`](https://github.com/nirholas/x402-group-pay/blob/main/openapi.json) · [`/.well-known/x402`](https://github.com/nirholas/x402-group-pay/blob/main/public/.well-known/x402).
+Base URL: your deployment (default `http://localhost:4041`). Machine-readable: [`openapi.json`](https://github.com/nirholas/x402-group-pay/blob/main/openapi.json) · [`/.well-known/x402`](https://github.com/nirholas/x402-group-pay/blob/main/public/.well-known/x402).
 
 All paid routes follow x402: unpaid request → `402` + `PaymentRequirements`; request with valid `X-PAYMENT` header → `200` + artifact + `X-PAYMENT-RESPONSE` header.
 
@@ -13,7 +13,7 @@ Every paid route is **dual rail** — the 402 body's `accepts[]` holds one entry
 | EVM | `base-sepolia` (default), `base` | USDC `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | `0x40252CFDF8B20Ed757D61ff157719F33Ec332402` | `https://x402.org/facilitator` |
 | Solana | `solana` (default), `solana-devnet` | USDC `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | `WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW` | `https://facilitator.payai.network` |
 
-The Solana entry carries `extra.feePayer` — the facilitator account that sponsors the SOL network fee, so payers need only USDC.
+The two rails use **different facilitators** because the reference x402.org facilitator does not settle Solana mainnet. Each contribution records the facilitator that settled it. The Solana entry carries `extra.feePayer` — the facilitator account that sponsors the SOL network fee, so payers need only USDC.
 
 **402 body**
 
@@ -40,6 +40,7 @@ The Solana entry carries `extra.feePayer` — the facilitator account that spons
 
 ```json
 { "success": true, "rail": "solana", "network": "solana",
+  "facilitator": "https://facilitator.payai.network",
   "transaction": "5xY…", "payer": "7hF…", "amount": "1000", "asset": "USDC" }
 ```
 
@@ -95,6 +96,7 @@ Contribute one share unit. Pay on **either rail** — members of the same pool c
       "type": "x402-group-pay/contribution-receipt",
       "receiptId": "rcpt_1a2b3c4d5e6f7a8b", "poolId": "pool_…", "wallet": "0x…",
       "rail": "evm", "network": "base-sepolia", "settlementTx": "0x9f…",
+      "facilitator": "https://x402.org/facilitator",
       "unitUsd": 0.01, "unitsPaid": 3, "unitsRequired": 6, "remainingUsd": 0.03,
       "railBreakdown": { "evm": 2, "solana": 1, "unknown": 0 },
       "poolStatus": "open", "paidAt": "…"

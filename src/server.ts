@@ -6,11 +6,12 @@ import { activeRails, paywall, usingSuiteDefaultPayTo } from "./payments.js";
 import { PoolStore, shareUnitUsd } from "./service.js";
 import { paymentFacts } from "./payer.js";
 import { usingDevSecret, verify } from "./sign.js";
+import { solanaCheckoutRouter } from "./solana-checkout.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.resolve(__dirname, "..", "public");
 
-const PORT = Number(process.env.PORT ?? 4021);
+const PORT = Number(process.env.PORT ?? 4041);
 const SHARE_UNIT = `$${shareUnitUsd()}`;
 
 const PRICES: Record<string, string> = {
@@ -136,6 +137,15 @@ app.get("/skill.md", (_req, res) => {
 
 app.use(express.static(PUBLIC_DIR));
 
+// Optional: the browser-side Solana checkout helper the payment modal uses for
+// Phantom. Not part of verification — both rails verify + settle through their
+// facilitator in payments.ts. Absent deps just mean the human demo page falls
+// back to EVM wallets; agent clients are unaffected either way.
+const checkoutRouter = await solanaCheckoutRouter();
+if (checkoutRouter) {
+  app.use("/api/x402-checkout", checkoutRouter);
+}
+
 app.listen(PORT, () => {
   console.log(`x402-group-pay listening on http://localhost:${PORT}`);
   console.log("  Payment rails (client picks one):");
@@ -148,6 +158,13 @@ app.listen(PORT, () => {
       "  NOTE: using suite default payTo — set PAY_TO_ADDRESS / SOLANA_PAY_TO_ADDRESS to receive funds yourself.",
     );
   }
+  console.log(
+    checkoutRouter
+      ? "  Solana browser checkout: mounted at /api/x402-checkout (Phantom enabled on the demo page)"
+      : "  Solana browser checkout: not mounted — install @three-ws/x402-payment-modal, @solana/web3.js\n" +
+        "                           and @solana/spl-token to enable Phantom on the demo page.\n" +
+        "                           The Solana rail itself still works for agent clients.",
+  );
   if (usingDevSecret()) {
     console.log("  WARNING: using built-in dev SIGNING_SECRET — set SIGNING_SECRET in production.");
   }

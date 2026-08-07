@@ -16,7 +16,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:4021",
+      "url": "http://localhost:4041",
       "description": "local dev"
     },
     {
@@ -273,6 +273,13 @@
           },
           "paidAt": {
             "type": "string"
+          },
+          "facilitator": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Facilitator that settled this contribution. The two rails differ."
           }
         }
       },

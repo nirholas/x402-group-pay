@@ -11,7 +11,7 @@ Every paid route is **dual rail**: the 402 lists USDC on Base *and* USDC on Sola
 ## 1. Hit a paid route without payment → 402
 
 ```bash
-curl -si -X POST http://localhost:4021/pools \
+curl -si -X POST http://localhost:4041/pools \
   -H 'content-type: application/json' \
   -d '{"purpose":"Dinner for 6","totalUsd":0.06}'
 ```
@@ -30,7 +30,7 @@ Content-Type: application/json
       "scheme": "exact",
       "network": "base-sepolia",
       "maxAmountRequired": "1000",
-      "resource": "http://localhost:4021/pools",
+      "resource": "http://localhost:4041/pools",
       "payTo": "0x40252CFDF8B20Ed757D61ff157719F33Ec332402",
       "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
       "extra": { "name": "USDC", "version": "2" }
@@ -39,7 +39,7 @@ Content-Type: application/json
       "scheme": "exact",
       "network": "solana",
       "maxAmountRequired": "1000",
-      "resource": "http://localhost:4021/pools",
+      "resource": "http://localhost:4041/pools",
       "payTo": "WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW",
       "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
       "extra": { "name": "USD Coin", "decimals": 6, "feePayer": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4" }
@@ -51,7 +51,7 @@ Content-Type: application/json
 The `accepts` array is the machine-readable price sheet, one entry per rail: `maxAmountRequired` is in USDC base units (6 decimals) and `asset` is the USDC contract/mint on the named network. Pick one:
 
 ```bash
-curl -s -X POST http://localhost:4021/pools \
+curl -s -X POST http://localhost:4041/pools \
   -H 'content-type: application/json' -d '{"purpose":"Dinner for 6","totalUsd":0.06}' \
   | jq '.accepts[] | {network, payTo, asset, maxAmountRequired}'
 ```
@@ -78,7 +78,7 @@ The server reads `network` off your payload, picks the matching requirement, and
 
 ```
 HTTP/1.1 200 OK
-X-PAYMENT-RESPONSE: <base64 of {"success":true,"rail":"solana","network":"solana","transaction":"5xY…","payer":"7hF…","amount":"1000","asset":"USDC"}>
+X-PAYMENT-RESPONSE: <base64 of {"success":true,"rail":"solana","network":"solana","facilitator":"https://facilitator.payai.network","transaction":"5xY…","payer":"7hF…","amount":"1000","asset":"USDC"}>
 
 { "pool": { "poolId": "pool_…", "unitsRequired": 6, … }, "joinLinks": { … }, "rails": [ … ] }
 ```
@@ -92,7 +92,7 @@ echo "<header value>" | base64 -d | jq
 ## 4. Free routes need no payment
 
 ```bash
-curl -s http://localhost:4021/pools/pool_XXX/proof | jq
-curl -s http://localhost:4021/healthz
-curl -s http://localhost:4021/.well-known/x402 | jq
+curl -s http://localhost:4041/pools/pool_XXX/proof | jq
+curl -s http://localhost:4041/healthz
+curl -s http://localhost:4041/.well-known/x402 | jq
 ```

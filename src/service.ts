@@ -14,6 +14,8 @@ export interface Contribution {
   network: string;
   /** Settlement tx hash / signature from the facilitator, when available. */
   settlementTx: string | null;
+  /** Which facilitator verified + settled this contribution. The two rails differ. */
+  facilitator: string | null;
   paidAt: string;
 }
 
@@ -58,6 +60,8 @@ export interface PaymentFacts {
   rail: "evm" | "solana" | "unknown";
   network: string;
   settlementTx: string | null;
+  /** The facilitator that settled it — x402.org for Base, PayAI for Solana by default. */
+  facilitator: string | null;
 }
 
 export function shareUnitUsd(): number {
@@ -141,7 +145,7 @@ export class PoolStore {
     kind: "receipt" | "overfunded" | "misdirected";
     artifact: SignedArtifact<Record<string, unknown>>;
   } {
-    const { wallet, rail, network, settlementTx } = payment;
+    const { wallet, rail, network, settlementTx, facilitator } = payment;
     const pool = this.getPool(poolId);
     const paidAt = new Date().toISOString();
     const receiptId = `rcpt_${randomBytes(8).toString("hex")}`;
@@ -159,6 +163,7 @@ export class PoolStore {
           rail,
           network,
           settlementTx,
+          facilitator,
           unitUsd: unit,
           paidAt,
           reason: "pool_not_found",
@@ -179,6 +184,7 @@ export class PoolStore {
           rail,
           network,
           settlementTx,
+          facilitator,
           unitUsd: unit,
           paidAt,
           reason: pool.status === "funded" ? "pool_already_funded" : "pool_expired",
@@ -189,7 +195,7 @@ export class PoolStore {
     }
 
     pool.unitsPaid += 1;
-    pool.contributions.push({ receiptId, wallet, unitUsd: unit, rail, network, settlementTx, paidAt });
+    pool.contributions.push({ receiptId, wallet, unitUsd: unit, rail, network, settlementTx, facilitator, paidAt });
     pool.railBreakdown = pool.railBreakdown ?? { evm: 0, solana: 0, unknown: 0 };
     pool.railBreakdown[rail] += 1;
     if (pool.unitsPaid >= pool.unitsRequired) {
@@ -208,6 +214,7 @@ export class PoolStore {
         rail,
         network,
         settlementTx,
+        facilitator,
         unitUsd: unit,
         unitsPaid: pool.unitsPaid,
         railBreakdown: { ...pool.railBreakdown },
@@ -257,6 +264,7 @@ export class PoolStore {
           rail: c.rail,
           network: c.network,
           settlementTx: c.settlementTx,
+          facilitator: c.facilitator,
           receiptId: c.receiptId,
         })),
         railBreakdown: { ...pool.railBreakdown },

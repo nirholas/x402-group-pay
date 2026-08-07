@@ -21,7 +21,7 @@ Group payments normally mean one person fronting the money and chasing five othe
 git clone https://github.com/nirholas/x402-group-pay && cd x402-group-pay
 npm install
 cp .env.example .env        # pre-filled with the suite's receive addresses
-npm run dev                 # server on http://localhost:4021
+npm run dev                 # server on http://localhost:4041
 ```
 
 It boots with no configuration. To receive the funds yourself, set `PAY_TO_ADDRESS` (Base) and `SOLANA_PAY_TO_ADDRESS` (Solana) in `.env` — the server logs a note while the suite defaults are in use.
@@ -32,7 +32,7 @@ Then run the full paid flow with an agent wallet holding [Base Sepolia USDC](htt
 PRIVATE_KEY=0x... npm run client
 ```
 
-Or open **http://localhost:4021** for the human checkout demo (drop-in payment modal).
+Or open **http://localhost:4041** for the human checkout demo (drop-in payment modal).
 
 ## API
 
@@ -45,14 +45,14 @@ Or open **http://localhost:4021** for the human checkout demo (drop-in payment m
 | `POST /verify` | free | Signature check for any artifact issued here |
 | `GET /healthz` | free | Liveness + the rails this deployment accepts |
 
-Each contributor pays on **whichever rail they hold** — the receipt records `rail` (`evm`/`solana`), the settlement `network`, and the transaction reference, and the pool keeps a running `railBreakdown`. A pool's `totalUsd` is split into fixed `SHARE_UNIT` contributions (default $0.01). Members covering multiple units simply call `/pay` multiple times. Contributions to missing/closed pools still return a **signed refund-claim instrument** in the error body — payment never produces a silent side effect.
+Each contributor pays on **whichever rail they hold** — the receipt records `rail` (`evm`/`solana`), the settlement `network`, the `facilitator` that settled it, and the transaction reference, and the pool keeps a running `railBreakdown`. The two rails use different facilitators (x402.org for Base, PayAI for Solana by default, since the reference facilitator does not settle Solana mainnet), so recording it per contribution matters for reconciliation. A pool's `totalUsd` is split into fixed `SHARE_UNIT` contributions (default $0.01). Members covering multiple units simply call `/pay` multiple times. Contributions to missing/closed pools still return a **signed refund-claim instrument** in the error body — payment never produces a silent side effect.
 
 ## How x402 works — two rails, one flow
 
 1. Client calls a paid route → server responds `402 Payment Required` with an `accepts` array holding **both** payment requirements: USDC on Base (EVM) and USDC on Solana (SVM), same price, same resource.
 2. Client picks the rail its wallet supports and authorizes exactly that amount — an EIP-3009 transfer authorization on Base, or a fee-sponsored SPL `transferChecked` on Solana — then retries with the `X-PAYMENT` header.
 3. The server reads `network` off the payload, selects the matching requirement, and verifies + settles through that rail's facilitator (x402.org for Base, PayAI for Solana by default).
-4. Server responds `200` with the artifact in-body and an `X-PAYMENT-RESPONSE` header carrying the settlement receipt (`rail`, `network`, `transaction`, `payer`).
+4. Server responds `200` with the artifact in-body and an `X-PAYMENT-RESPONSE` header carrying the settlement receipt (`rail`, `network`, `facilitator`, `transaction`, `payer`).
 
 Solana buyers need no SOL: the facilitator's `feePayer` sponsors the network fee, so a USDC balance is enough. `x402-fetch` does steps 2–3 automatically — see [`examples/agent-client.ts`](examples/agent-client.ts) and [`examples/curl.md`](examples/curl.md).
 
@@ -72,7 +72,9 @@ State persists to `data/pools.json` (file-based, gitignored).
 
 ## Human checkout
 
-`public/index.html` is a working split-the-bill page built on the drop-in [`@three-ws/x402-payment-modal`](https://www.npmjs.com/package/@three-ws/x402-payment-modal) (CDN reference — proprietary package, not vendored). Because the 402 challenge advertises both rails, the modal offers EVM wallets *and* Phantom with no extra wiring. It handles wallet connect, SIWX re-entry so returning contributors don't re-approve everything, and per-site spending caps, then emits `x402:result` with the artifact this server returned.
+`public/index.html` is a working split-the-bill page built on the drop-in [`@three-ws/x402-payment-modal`](https://www.npmjs.com/package/@three-ws/x402-payment-modal) (CDN reference — proprietary package, not vendored). Because the 402 challenge advertises both rails, the modal offers EVM wallets *and* Phantom. The EVM path signs in the browser and never touches the server; the Solana path needs one small helper endpoint (Phantom signs serialized transactions but does not build instructions), which the server mounts at `/api/x402-checkout` when the optional `@three-ws/x402-payment-modal`, `@solana/web3.js` and `@solana/spl-token` packages are installed. **That endpoint is not part of payment verification** — both rails verify and settle through their facilitator in `src/payments.ts`. Without those packages the page falls back to EVM wallets and the Solana rail keeps working for agent clients.
+
+The modal handles wallet connect, SIWX re-entry so returning contributors don't re-approve everything, and per-site spending caps, then emits `x402:result` with the artifact this server returned.
 
 ## For AI agents
 

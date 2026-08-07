@@ -15,7 +15,7 @@ import { z } from "zod";
 import { privateKeyToAccount } from "viem/accounts";
 import { wrapFetchWithPayment } from "x402-fetch";
 
-const BASE_URL = process.env.GROUP_PAY_URL ?? "http://localhost:4021";
+const BASE_URL = process.env.GROUP_PAY_URL ?? "http://localhost:4041";
 const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
 const payFetch = wrapFetchWithPayment(fetch, account);
 
@@ -67,7 +67,7 @@ await server.connect(new StdioServerTransport());
       "command": "npx",
       "args": ["tsx", "/path/to/mcp-group-pay.ts"],
       "env": {
-        "GROUP_PAY_URL": "http://localhost:4021",
+        "GROUP_PAY_URL": "http://localhost:4041",
         "PRIVATE_KEY": "0x…wallet with Base Sepolia USDC…"
       }
     }

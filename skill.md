@@ -4,7 +4,7 @@ Split one booking (or any shared purchase) across N wallets. An organizer create
 
 **Pay in USDC on Base or Solana — your client picks the rail.** Every 402 challenge lists both, and the pool records which rail funded each contribution.
 
-**Base URL**: `{BASE_URL}` (self-hosted; default `http://localhost:4021`)
+**Base URL**: `{BASE_URL}` (self-hosted; default `http://localhost:4041`)
 
 ## Endpoints
 
@@ -65,6 +65,7 @@ Response 200:
       "rail": "evm",
       "network": "base-sepolia",
       "settlementTx": "0x9f…",
+      "facilitator": "https://x402.org/facilitator",
       "unitUsd": 0.01,
       "unitsPaid": 3,
       "unitsRequired": 6,
@@ -88,7 +89,7 @@ Live pool record.
 ### GET /pools/{id}/proof — free
 `{"status":"pending", unitsPaid, unitsRequired, remainingUsd, expiresAt}` while open; once funded:
 ```json
-{ "status": "funded", "proof": { "payload": { "type": "x402-group-pay/funded-proof", "poolId": "…", "totalUsd": 0.06, "contributors": [{"wallet": "0x…", "unitUsd": 0.01, "rail": "evm", "network": "base-sepolia", "settlementTx": "0x…", "receiptId": "…"}], "railBreakdown": {"evm": 4, "solana": 2, "unknown": 0}, "fundedAt": "…" }, "signature": "…", "algorithm": "HMAC-SHA256" } }
+{ "status": "funded", "proof": { "payload": { "type": "x402-group-pay/funded-proof", "poolId": "…", "totalUsd": 0.06, "contributors": [{"wallet": "0x…", "unitUsd": 0.01, "rail": "evm", "network": "base-sepolia", "settlementTx": "0x…", "facilitator": "https://x402.org/facilitator", "receiptId": "…"}], "railBreakdown": {"evm": 4, "solana": 2, "unknown": 0}, "fundedAt": "…" }, "signature": "…", "algorithm": "HMAC-SHA256" } }
 ```
 
 ### POST /verify — free
@@ -102,7 +103,7 @@ Protocol: **x402** (HTTP 402). Asset: **USDC** on both rails. A 402 response car
 | EVM | `base-sepolia` (`base` via `NETWORK`) | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | `0x40252CFDF8B20Ed757D61ff157719F33Ec332402` | `https://x402.org/facilitator` |
 | Solana | `solana` (`solana-devnet` via `SOLANA_NETWORK`) | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | `WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW` | `https://facilitator.payai.network` |
 
-Flow: make the request → receive `402` with `accepts[]` → pick your rail → sign the USDC authorization (EIP-3009 on Base, fee-sponsored SPL `transferChecked` on Solana; `extra.feePayer` sponsors the SOL fee so you need no SOL) → retry with `X-PAYMENT` → receive `200` with the artifact in-body plus an `X-PAYMENT-RESPONSE` header (`{success, rail, network, transaction, payer, amount, asset}`).
+Flow: make the request → receive `402` with `accepts[]` → pick your rail → sign the USDC authorization (EIP-3009 on Base, fee-sponsored SPL `transferChecked` on Solana; `extra.feePayer` sponsors the SOL fee so you need no SOL) → retry with `X-PAYMENT` → receive `200` with the artifact in-body plus an `X-PAYMENT-RESPONSE` header (`{success, rail, network, facilitator, transaction, payer, amount, asset}`).
 
 Clients: `x402-fetch` + `viem` for the EVM rail; any x402 Solana client (or `@three-ws/x402-payment-modal` in a browser) for the Solana rail. Sending a payload whose `network` is on neither rail returns `402` again listing what is accepted.
 

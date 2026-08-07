@@ -46,7 +46,7 @@ const paid = await fetch(url, { method: "POST", headers: { "X-PAYMENT": x_paymen
 
 ### Reading the settlement receipt
 
-Every paid `200` carries `X-PAYMENT-RESPONSE`, base64 JSON: `{success, rail, network, transaction, payer, amount, asset}`. Use `rail` to record which chain your budget was drawn on.
+Every paid `200` carries `X-PAYMENT-RESPONSE`, base64 JSON: `{success, rail, network, facilitator, transaction, payer, amount, asset}`. Use `rail` to record which chain your budget was drawn on.
 
 ## What you get back
 

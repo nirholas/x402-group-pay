@@ -47,12 +47,12 @@ The startup banner lists both payment rails (network, receive address, facilitat
             facilitator: https://facilitator.payai.network
 ```
 
-Open http://localhost:4021 for the human checkout demo — the modal offers both EVM wallets and Phantom.
+Open http://localhost:4041 for the human checkout demo — the modal offers both EVM wallets and Phantom.
 
 ## 4. Your first 402
 
 ```bash
-curl -si -X POST http://localhost:4021/pools \
+curl -si -X POST http://localhost:4041/pools \
   -H 'content-type: application/json' \
   -d '{"purpose":"Dinner for 6","totalUsd":0.06}'
 ```
@@ -60,7 +60,7 @@ curl -si -X POST http://localhost:4021/pools \
 You get `HTTP/1.1 402 Payment Required` and a JSON body whose `accepts[]` array holds **two** x402 `PaymentRequirements` — one per rail, same price:
 
 ```bash
-curl -s -X POST http://localhost:4021/pools \
+curl -s -X POST http://localhost:4041/pools \
   -H 'content-type: application/json' -d '{"purpose":"Dinner for 6","totalUsd":0.06}' \
   | jq '.accepts[] | {network, payTo, asset, maxAmountRequired}'
 ```
