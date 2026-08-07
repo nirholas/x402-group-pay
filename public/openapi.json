@@ -589,7 +589,8 @@
           "404": {
             "description": "Pool not found"
           }
-        }
+        },
+        "security": []
       }
     },
     "/pools/{id}/proof": {
@@ -631,7 +632,8 @@
           "404": {
             "description": "Pool not found"
           }
-        }
+        },
+        "security": []
       }
     },
     "/verify": {
@@ -675,7 +677,8 @@
               }
             }
           }
-        }
+        },
+        "security": []
       }
     },
     "/healthz": {
@@ -685,7 +688,8 @@
           "200": {
             "description": "OK"
           }
-        }
+        },
+        "security": []
       }
     },
     "/.well-known/x402": {
@@ -695,7 +699,8 @@
           "200": {
             "description": "Manifest JSON"
           }
-        }
+        },
+        "security": []
       }
     }
   }
