@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>x402-group-pay — split the bill demo</title>
+<script type="module" src="https://unpkg.com/@three-ws/x402-payment-modal"></script>
+<style>
+  :root { --accent:#0052ff; --bg:#fff; --fg:#111; --card:#f6f8fa; --border:#e2e5e9; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0d1117; --fg:#e6e8ea; --card:#161b22; --border:#2d333b; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; }
+  main { max-width:720px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+  h1 { font-size:1.6rem; } h1 span { color:var(--accent); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:1.25rem; margin:1rem 0; }
+  label { display:block; font-size:.85rem; margin:.6rem 0 .2rem; opacity:.8; }
+  input { width:100%; padding:.55rem .7rem; border-radius:8px; border:1px solid var(--border);
+    background:var(--bg); color:var(--fg); font-size:.95rem; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:8px;
+    padding:.65rem 1.1rem; font-size:.95rem; font-weight:600; cursor:pointer; margin-top:.9rem; }
+  button:hover { filter:brightness(1.1); }
+  button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  pre { background:var(--card); border:1px solid var(--border); border-radius:8px;
+    padding:1rem; overflow-x:auto; font-size:.8rem; white-space:pre-wrap; word-break:break-word; }
+  .bar { height:10px; background:var(--border); border-radius:5px; overflow:hidden; margin:.6rem 0; }
+  .bar > div { height:100%; width:0%; background:var(--accent); transition:width .4s; }
+  .muted { opacity:.7; font-size:.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1><span>x402-group-pay</span> — split the bill</h1>
+  <p class="muted">The 6-person dinner problem: create a pool, share the link, each person pays
+  their USDC share through the x402 payment modal, everyone gets a signed receipt, and the pool
+  emits a signed funded proof.</p>
+  <p class="muted"><strong>Pay in USDC on Base or Solana — your wallet picks the rail.</strong>
+  The modal reads both entries from the 402 challenge and offers EVM wallets and Phantom.
+  Contributors to one pool can mix rails; the pool records which rail funded each share.
+  Base Sepolia + Solana mainnet by default.</p>
+
+  <section class="card" id="create-card">
+    <h2>1 · Create a pool</h2>
+    <label for="purpose">Purpose</label>
+    <input id="purpose" value="Dinner at Luna — table for 6">
+    <label for="total">Total (USD, split into $0.01 share units)</label>
+    <input id="total" type="number" step="0.01" min="0.01" value="0.06">
+    <button id="create-btn"
+      data-x402-endpoint="/pools"
+      data-x402-method="POST"
+      data-x402-merchant="x402-group-pay"
+      data-x402-action="Create pool">Pay $0.001 &amp; create pool</button>
+  </section>
+
+  <section class="card" id="join-card" hidden>
+    <h2>2 · Contribute your share</h2>
+    <p>Pool <code id="pool-id"></code> — <span id="pool-purpose"></span></p>
+    <div class="bar"><div id="progress"></div></div>
+    <p class="muted"><span id="units-paid">0</span>/<span id="units-required">?</span> share units paid
+      · <span id="remaining"></span> remaining</p>
+    <p class="muted">Rail mix: <span id="rail-mix">—</span></p>
+    <button id="pay-btn"
+      data-x402-endpoint="/pools/UNSET/pay"
+      data-x402-method="POST"
+      data-x402-merchant="x402-group-pay"
+      data-x402-action="Contribute share">Pay $0.01 share</button>
+    <button class="secondary" id="refresh-btn">Refresh status</button>
+    <button class="secondary" id="copy-btn">Copy join link</button>
+  </section>
+
+  <section class="card" id="proof-card" hidden>
+    <h2>3 · Funded proof</h2>
+    <pre id="proof"></pre>
+  </section>
+
+  <section class="card">
+    <h2>Last result</h2>
+    <pre id="result">— nothing yet —</pre>
+  </section>
+
+  <p class="muted">Docs: <a href="https://nirholas.github.io/x402-group-pay/">nirholas.github.io/x402-group-pay</a>
+   · <a href="/.well-known/x402">.well-known/x402</a> · <a href="/skill.md">skill.md</a>
+   · <a href="https://github.com/nirholas/x402-group-pay">GitHub</a></p>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let poolId = new URLSearchParams(location.search).get("pool");
+
+  // Pool creation posts a JSON body — the modal forwards the request; keep inputs in sync.
+  function syncCreateBody() {
+    $("create-btn").dataset.x402Body = JSON.stringify({
+      purpose: $("purpose").value,
+      totalUsd: Number($("total").value),
+    });
+  }
+  ["purpose", "total"].forEach((id) => $(id).addEventListener("input", syncCreateBody));
+  syncCreateBody();
+
+  function showPool(pool) {
+    poolId = pool.poolId;
+    $("join-card").hidden = false;
+    $("pool-id").textContent = pool.poolId;
+    $("pool-purpose").textContent = pool.purpose;
+    $("units-paid").textContent = pool.unitsPaid;
+    $("units-required").textContent = pool.unitsRequired;
+    const pct = pool.unitsRequired ? (100 * pool.unitsPaid / pool.unitsRequired) : 0;
+    $("progress").style.width = pct + "%";
+    $("remaining").textContent = "$" + Math.max(0, (pool.unitsRequired - pool.unitsPaid) * pool.shareUnitUsd).toFixed(2);
+    const mix = pool.railBreakdown || { evm: 0, solana: 0, unknown: 0 };
+    $("rail-mix").textContent = `${mix.evm} on Base · ${mix.solana} on Solana` +
+      (mix.unknown ? ` · ${mix.unknown} unattributed` : "");
+    $("pay-btn").dataset.x402Endpoint = `/pools/${pool.poolId}/pay`;
+    const url = new URL(location.href);
+    url.searchParams.set("pool", pool.poolId);
+    history.replaceState(null, "", url);
+    if (pool.status === "funded") loadProof();
+  }
+
+  async function refresh() {
+    if (!poolId) return;
+    const res = await fetch(`/pools/${poolId}`);
+    if (res.ok) showPool((await res.json()).pool);
+  }
+
+  async function loadProof() {
+    const res = await fetch(`/pools/${poolId}/proof`);
+    const body = await res.json();
+    if (body.status === "funded") {
+      $("proof-card").hidden = false;
+      $("proof").textContent = JSON.stringify(body.proof, null, 2);
+    }
+  }
+
+  addEventListener("x402:result", (e) => {
+    const detail = e.detail ?? {};
+    $("result").textContent = JSON.stringify(detail, null, 2);
+    const body = detail.body ?? detail.response ?? detail.data ?? detail;
+    if (body && body.pool) showPool(body.pool);
+    else if (body && body.receipt) refresh();
+  });
+
+  $("refresh-btn").addEventListener("click", refresh);
+  $("copy-btn").addEventListener("click", () => {
+    navigator.clipboard.writeText(location.href);
+    $("copy-btn").textContent = "Copied!";
+    setTimeout(() => ($("copy-btn").textContent = "Copy join link"), 1500);
+  });
+
+  if (poolId) refresh();
+</script>
+</body>
+</html>

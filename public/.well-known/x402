@@ -1,0 +1,202 @@
+{
+  "x402Version": 1,
+  "name": "x402-group-pay",
+  "description": "Split one booking across N wallets — pooled x402 contributions with signed receipts and funded proofs",
+  "homepage": "https://nirholas.github.io/x402-group-pay/",
+  "repository": "https://github.com/nirholas/x402-group-pay",
+  "contact": "nichxbt@gmail.com",
+  "skill": "/skill.md",
+  "payment": {
+    "note": "Pay in USDC on Base or Solana — your client picks the rail. Every 402 challenge lists both.",
+    "rails": [
+      {
+        "scheme": "exact",
+        "network": "base-sepolia",
+        "asset": "USDC",
+        "assetAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "payTo": "0x40252CFDF8B20Ed757D61ff157719F33Ec332402",
+        "facilitator": "https://x402.org/facilitator"
+      },
+      {
+        "scheme": "exact",
+        "network": "solana",
+        "asset": "USDC",
+        "assetAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "payTo": "WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW",
+        "facilitator": "https://facilitator.payai.network"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "resource": "POST /pools",
+      "description": "Create a group-payment pool. Returns the pool record plus human and agent join links.",
+      "price": "$0.001",
+      "networks": [
+        "base-sepolia",
+        "solana"
+      ],
+      "asset": "USDC",
+      "accepts": [
+        {
+          "scheme": "exact",
+          "network": "base-sepolia",
+          "asset": "USDC",
+          "assetAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "payTo": "0x40252CFDF8B20Ed757D61ff157719F33Ec332402",
+          "facilitator": "https://x402.org/facilitator",
+          "maxAmountRequired": "1000"
+        },
+        {
+          "scheme": "exact",
+          "network": "solana",
+          "asset": "USDC",
+          "assetAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "payTo": "WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW",
+          "facilitator": "https://facilitator.payai.network",
+          "maxAmountRequired": "1000"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "pool": {
+            "type": "object",
+            "properties": {
+              "poolId": {
+                "type": "string"
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "merchant": {
+                "type": "string"
+              },
+              "totalUsd": {
+                "type": "number"
+              },
+              "shareUnitUsd": {
+                "type": "number"
+              },
+              "unitsRequired": {
+                "type": "integer"
+              },
+              "unitsPaid": {
+                "type": "integer"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "funded",
+                  "expired"
+                ]
+              },
+              "expiresAt": {
+                "type": "string"
+              }
+            }
+          },
+          "joinLinks": {
+            "type": "object",
+            "properties": {
+              "human": {
+                "type": "string"
+              },
+              "agentPay": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "proof": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource": "POST /pools/{id}/pay",
+      "description": "Contribute one share unit to a pool. Returns a signed contribution receipt (HMAC-SHA256) with live funding progress.",
+      "price": "$0.01",
+      "networks": [
+        "base-sepolia",
+        "solana"
+      ],
+      "asset": "USDC",
+      "accepts": [
+        {
+          "scheme": "exact",
+          "network": "base-sepolia",
+          "asset": "USDC",
+          "assetAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "payTo": "0x40252CFDF8B20Ed757D61ff157719F33Ec332402",
+          "facilitator": "https://x402.org/facilitator",
+          "maxAmountRequired": "10000"
+        },
+        {
+          "scheme": "exact",
+          "network": "solana",
+          "asset": "USDC",
+          "assetAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "payTo": "WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW",
+          "facilitator": "https://facilitator.payai.network",
+          "maxAmountRequired": "10000"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "receipt": {
+            "type": "object",
+            "properties": {
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "receiptId": {
+                    "type": "string"
+                  },
+                  "poolId": {
+                    "type": "string"
+                  },
+                  "wallet": {
+                    "type": "string"
+                  },
+                  "unitUsd": {
+                    "type": "number"
+                  },
+                  "unitsPaid": {
+                    "type": "integer"
+                  },
+                  "unitsRequired": {
+                    "type": "integer"
+                  },
+                  "remainingUsd": {
+                    "type": "number"
+                  },
+                  "poolStatus": {
+                    "type": "string"
+                  },
+                  "paidAt": {
+                    "type": "string"
+                  }
+                }
+              },
+              "signature": {
+                "type": "string"
+              },
+              "algorithm": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
