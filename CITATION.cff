@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "x402-group-pay"
+abstract: "Split one booking across N wallets: the 6-person dinner problem: pooled x402 contributions with signed receipts and funded proofs"
+license: Apache-2.0
+repository-code: "https://github.com/nirholas/x402-group-pay"
+url: "https://three.ws"
+authors:
+  - name: three.ws
+    website: "https://three.ws"

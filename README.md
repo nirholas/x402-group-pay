@@ -99,3 +99,26 @@ Questions, deployments, or a rail you want added: **nichxbt@gmail.com**
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=nirholas/x402-group-pay&type=Date)](https://www.star-history.com/#nirholas/x402-group-pay&Date)
+
+<!-- three.ws:growth -->
+## Support the project
+
+If x402-group-pay saves you time, **[star it on GitHub](https://github.com/nirholas/x402-group-pay)**. Stars are how other developers and AI agents find the repositories worth trusting, and they cost you one click.
+
+Know someone who would use it? [Post on X](https://twitter.com/intent/tweet?text=x402-group-pay%3A%20Split%20one%20booking%20across%20N%20wallets%3A%20the%206-person%20dinner%20problem%3A%20pooled%20x402%20contributions%20with&url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-group-pay) · [Share on Bluesky](https://bsky.app/intent/compose?text=x402-group-pay%3A%20Split%20one%20booking%20across%20N%20wallets%3A%20the%206-person%20dinner%20problem%3A%20pooled%20x402%20contributions%20with%20https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-group-pay) · [Share on LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-group-pay) · [Submit to Hacker News](https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-group-pay&t=x402-group-pay%3A%20Split%20one%20booking%20across%20N%20wallets%3A%20the%206-person%20dinner%20problem%3A%20pooled%20x402%20contributions%20with) · [Share on Reddit](https://www.reddit.com/submit?url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-group-pay&title=x402-group-pay%3A%20Split%20one%20booking%20across%20N%20wallets%3A%20the%206-person%20dinner%20problem%3A%20pooled%20x402%20contributions%20with)
+
+## Built for AI agents too
+
+Coding agents and LLM tooling can read this repo directly: [AGENTS.md](./AGENTS.md), [llms.txt](./llms.txt), [llms-full.txt](./llms-full.txt). Point an agent at `https://github.com/nirholas/x402-group-pay` and it has the context it needs.
+
+## More from the same author
+
+- [All repositories by nirholas](https://github.com/nirholas/nirholas#readme): the full catalog, grouped by topic
+- [three.ws](https://three.ws): the platform for 3D AI agents with Solana wallets, a skill marketplace and x402 payments
+- Questions or ideas: [open an issue](https://github.com/nirholas/x402-group-pay/issues) or [start a discussion](https://github.com/nirholas/x402-group-pay/discussions)
+
+## Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=nirholas/x402-group-pay)](https://github.com/nirholas/x402-group-pay/graphs/contributors)
+
+<!-- /three.ws:growth -->
