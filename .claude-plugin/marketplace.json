@@ -1,0 +1,25 @@
+{
+  "name": "x402-group-pay",
+  "owner": {
+    "name": "nirholas"
+  },
+  "description": "Split one booking across several wallets with pooled x402 contributions, signed receipts and a funded proof.",
+  "plugins": [
+    {
+      "name": "x402-group-pay",
+      "source": "./plugins/x402-group-pay",
+      "description": "Split one booking across several wallets with pooled x402 contributions, signed receipts and a funded proof.",
+      "category": "finance",
+      "tags": [
+        "x402",
+        "usdc",
+        "solana",
+        "base",
+        "agentic-commerce",
+        "http-402",
+        "group-payments",
+        "split"
+      ]
+    }
+  ]
+}
