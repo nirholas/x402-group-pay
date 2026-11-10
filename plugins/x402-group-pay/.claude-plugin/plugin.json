@@ -1,0 +1,21 @@
+{
+  "name": "x402-group-pay",
+  "version": "0.1.0",
+  "description": "Split one booking across several wallets with pooled x402 contributions, signed receipts and a funded proof.",
+  "author": {
+    "name": "nirholas"
+  },
+  "repository": "https://github.com/nirholas/x402-group-pay",
+  "homepage": "https://nirholas.github.io/x402-group-pay/",
+  "license": "Apache-2.0",
+  "keywords": [
+    "x402",
+    "usdc",
+    "solana",
+    "base",
+    "agentic-commerce",
+    "http-402",
+    "group-payments",
+    "split"
+  ]
+}
